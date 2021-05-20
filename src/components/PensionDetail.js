@@ -15,16 +15,21 @@ import {
 
 // TODO: need major refactoring
 class PensionCalculation extends React.Component {
-  state = {
-    personalDetail: {
-      name: '',
-      amount: '',
-      age: '',
-      isSmoker: false,
-      isDrinker: false,
-      isTerminallyIll: false,
-    },
-  };
+  
+  constructor(props) {
+    super(props);
+    this.state = {
+      personalDetail: {
+        name: '',
+        amount: '',
+        age: '',
+        isSmoker: false,
+        isDrinker: false,
+        isTerminallyIll: false,
+      },
+    };
+  }
+  
 
   componentDidMount = () => {};
 
@@ -48,6 +53,40 @@ class PensionCalculation extends React.Component {
     document.getElementById(id).innerHTML +=
       '<p style="color: red;font-weight: bold;">' + error + '</p>';
   };
+
+  validateFields = () => {
+
+    let hasError = false;
+    const { name, amount, age } = this.state.personalDetail;
+
+    if(name.length === 0 || amount.length === 0 || age.length === 0) {
+      hasError = true;
+    }
+
+    return hasError;
+  }
+
+  clearForm = () => {
+    this.setState({  
+      personalDetail: {
+        name: null,
+        amount: null,
+        age: null,
+        isSmoker: false,
+        isDrinker: false,
+        isTerminallyIll: false,
+      },
+      formErrors: {
+        name: '',
+        amount: '',
+        age: '',
+      }
+    });
+  }
+
+  handleCheckboxUpdate = (e) => {
+    this.setState({ personalDetail : { ...this.state.personalDetail, [e.target.name]: e.target.checked}});
+  }
 
   render() {
     // TODO: use useGetTravellingData() to retrieve travelling data.
@@ -111,101 +150,47 @@ class PensionCalculation extends React.Component {
             </Form.Control>
           </Form.Group>
 
-          <Form.Group
-            id="smokerCheck"
-            controlId="smokerInput"
-            style={{
-              fontFamily: 'Arial, Helvetica, sans-serif',
-              fontWeight: 'bold',
-              borderRadius: '4px',
-              margin: '10px 30px',
-              padding: '5px',
-              boxShadow: '5px 5px 5px #888888',
-            }}
-          >
-            <Form.Check
-              type="checkbox"
-              label="Are you a smoker?"
-              checked={this.state.personalDetail.isSmoker}
-              onChange={(e) => {
-                const isSmoker = e.target.checked;
-                const { personalDetail } = this.state;
-                personalDetail.isSmoker = isSmoker;
-                this.setState({
-                  personalDetail: {
-                    isSmoker: isSmoker
-                  }
-                })
-                // checking the checkbox on click
-                // setTimeout(() => {
-                //   document.getElementById(
-                //     'smokerInput'
-                //   ).checked = !document.getElementById('smokerInput').checked;
-                // }, 100);
-              }}
-            />
-          </Form.Group>
-          <Form.Group
-            id="alcoholCheck"
-            controlId="alcoholInput"
-            style={{
-              fontFamily: 'Arial, Helvetica, sans-serif',
-              fontWeight: 'bold',
-              borderRadius: '4px',
-              margin: '10px 30px',
-              padding: '5px',
-              boxShadow: '5px 5px 5px #888888',
-            }}
-          >
-            <Form.Check
-              type="checkbox"
-              label="Do you have history of issue with alcohol?"
-              checked={this.state.personalDetail.isDrinker}
-              onChange={(e) => {
-                const isDrinker = e.target.value === 'on';
-                const { personalDetail } = this.state;
-                personalDetail.isDrinker = isDrinker;
+          <div>
+            <label>
+              <input 
+                type="checkbox"
+                name="isSmoker"
+                checked={this.state.personalDetail.isSmoker}
+                onChange={this.handleCheckboxUpdate}
+              />
+              <span>
+                Are you a smoker?
+              </span>
+            </label>
+          </div>
 
-                // checking the checkbox on click
-                setTimeout(() => {
-                  document.getElementById(
-                    'alcoholInput'
-                  ).checked = !document.getElementById('alcoholInput').checked;
-                }, 100);
-              }}
-            />
-          </Form.Group>
-          <Form.Group
-            id="terminalIllnessCheck"
-            controlId="terminalIllnessInput"
-            style={{
-              fontFamily: 'Arial, Helvetica, sans-serif',
-              fontWeight: 'bold',
-              borderRadius: '4px',
-              margin: '10px 30px',
-              padding: '5px',
-              boxShadow: '5px 5px 5px #888888',
-            }}
-          >
-            <Form.Check
-              type="checkbox"
-              label="Do you have terminal illness (eg. final stage of cancer)?"
-              checked={this.state.personalDetail.isTerminallyIll}
-              onChange={(e) => {
-                const isTerminallyIll = e.target.value === 'on';
-                const { personalDetail } = this.state;
-                personalDetail.isTerminallyIll = isTerminallyIll;
+          <div>
+            <label>
+              <input 
+                type="checkbox"
+                name="isDrinker"
+                checked={this.state.personalDetail.isDrinker}
+                onChange={this.handleCheckboxUpdate}
+              />
+              <span>
+                Do you have history of issue with alcohol?
+              </span>
+            </label>
+          </div>
 
-                // checking the checkbox on click
-                setTimeout(() => {
-                  document.getElementById(
-                    'terminalIllnessInput'
-                  ).checked = !document.getElementById('terminalIllnessInput')
-                    .checked;
-                }, 100);
-              }}
-            />
-          </Form.Group>
+          <div>
+            <label>
+              <input 
+                type="checkbox"
+                name="isTerminallyIll"
+                checked={this.state.personalDetail.isTerminallyIll}
+                onChange={this.handleCheckboxUpdate}
+              />
+              <span>
+                Do you have terminal illness (eg. final stage of cancer)?
+              </span>
+            </label>
+          </div>
 
           <div className="mb-2">
             <Button
@@ -213,24 +198,10 @@ class PensionCalculation extends React.Component {
               type="submit"
               variant="primary"
               onClick={(e) => {
-                // TODO: Browser page should not refresh/reload when the button is clicked
+                e.preventDefault();
 
-                // TODO: Fix the Validations
-                let hasError = false;
-                if (this.state.personalDetail.name === '') {
-                  this.addError('name', 'Empty name');
-                  hasError = true;
-                }
-                if (this.state.personalDetail.amount === '') {
-                  this.addError('amount', 'Empty amount');
-                  hasError = true;
-                }
-                if (this.state.personalDetail.age === '') {
-                  this.addError('age', 'Empty age');
-                  hasError = true;
-                }
-
-                if (hasError) {
+                const hasErrors = this.validateFields();
+                if(hasErrors) {
                   return;
                 }
 
@@ -249,7 +220,8 @@ class PensionCalculation extends React.Component {
             <Button
               variant="secondary"
               onClick={(e) => {
-                // TODO: clear form when clicked
+                e.preventDefault();
+                this.clearForm();
               }}
             >
               Clear
