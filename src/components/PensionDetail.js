@@ -22,7 +22,7 @@ class PensionCalculation extends React.Component {
       personalDetail: {
         name: '',
         amount: '',
-        age: '',
+        age: null,
         isSmoker: false,
         isDrinker: false,
         isTerminallyIll: false,
@@ -84,6 +84,10 @@ class PensionCalculation extends React.Component {
     });
   }
 
+  handleSelectUpdate = (e) => {
+    this.setState({ personalDetail : { ...this.state.personalDetail, [e.target.name]: e.target.value}});
+  }
+
   handleCheckboxUpdate = (e) => {
     this.setState({ personalDetail : { ...this.state.personalDetail, [e.target.name]: e.target.checked}});
   }
@@ -109,6 +113,7 @@ class PensionCalculation extends React.Component {
           <Form.Group id="name" controlId="nameInput">
             <Form.Label>Name*</Form.Label>
             <Form.Control
+              required
               type="text"
               placeholder="Enter name"
               onChange={(e) => {
@@ -122,6 +127,7 @@ class PensionCalculation extends React.Component {
           <Form.Group id="amount" controlId="amountInput">
             <Form.Label>Insured Amount*</Form.Label>
             <Form.Control
+              required
               type="text"
               placeholder="Enter amount"
               onChange={(e) => {
@@ -132,23 +138,22 @@ class PensionCalculation extends React.Component {
             />
           </Form.Group>
 
-          <Form.Group id="age" controlId="ageInput">
-            <Form.Label>Age*</Form.Label>
-            <Form.Control
-              as="select"
-              defaultValue="Choose..."
-              onChange={(e) => {
-                const age = e.target.value;
-                const { personalDetail } = this.state;
-                personalDetail.age = age;
-              }}
+          <div>
+            <div>
+              <label>Age *</label>
+            </div>
+            <select
+              required
+              value={this.state.personalDetail.age ? this.state.personalDetail.age : ''}
+              onChange={this.handleSelectUpdate}
+              name="age"
             >
-              <option>Choose...</option>
+              <option value="">Choose...</option>
               <option value="21-40">Between 21 - 40</option>
               <option value="41-60">Between 41 - 60</option>
               <option value="61-">Above 60</option>
-            </Form.Control>
-          </Form.Group>
+            </select>
+          </div>
 
           <div>
             <label>
