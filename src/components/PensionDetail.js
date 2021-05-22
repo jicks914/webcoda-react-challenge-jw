@@ -84,14 +84,6 @@ class PensionCalculation extends React.Component {
     this.setState({ formErrors: formErrorsObj });
   }
 
-  handleInputUpdate = (e) => {
-    this.setState({ personalDetail : { ...this.state.personalDetail, [e.target.name]: e.target.value}});
-  }
-
-  handleCheckboxUpdate = (e) => {
-    this.setState({ personalDetail : { ...this.state.personalDetail, [e.target.name]: e.target.checked}});
-  }
-
   handleInputChange = (input, inputType) => {
     if(inputType === 'checkbox') {
       this.setState({ personalDetail : { ...this.state.personalDetail, [input.target.name]: input.target.checked}})

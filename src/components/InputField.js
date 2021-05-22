@@ -10,6 +10,13 @@ export default class InputField extends React.Component {
         }
     }
 
+    componentWillReceiveProps(props) {
+        this.setState({ 
+            checked: props.isChecked,
+            value: props.value
+        });  
+    }
+
     handleUpdate = (e, inputType) => {
         if(inputType === 'checkbox') {
             this.setState({ checked: e.target.checked });
