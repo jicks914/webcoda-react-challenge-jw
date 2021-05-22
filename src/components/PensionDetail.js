@@ -345,4 +345,13 @@ class PensionCalculation extends React.Component {
   }
 }
 
-export default PensionCalculation;
+const PensionWrapper = () => {
+
+  const travellingData = useGetTravellingData();
+  
+  return <PensionCalculation travelData={travellingData} />
+  
+}
+
+
+export default PensionWrapper;
