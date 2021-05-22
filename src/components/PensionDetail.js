@@ -3,7 +3,6 @@ import Container from 'react-bootstrap/Container';
 import Card from 'react-bootstrap/Card';
 import Accordion from 'react-bootstrap/Accordion';
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import useGetTravellingData from '../GetDataHook';
 import { formatDateTime, getSupportedCurrencies, handleError } from '../utils';
 import * as api from '../api';
@@ -22,11 +21,16 @@ class PensionCalculation extends React.Component {
       personalDetail: {
         name: '',
         amount: '',
-        age: null,
+        age: '',
         isSmoker: false,
         isDrinker: false,
         isTerminallyIll: false,
       },
+      formErrors: {
+        name: false,
+        amount: false,
+        age: false,
+      }
     };
   }
   
@@ -35,61 +39,89 @@ class PensionCalculation extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {}
 
-  submitRequest = () => {
-    try {
-      api.submitRequest(this.state);
-      return 'submission ok';
-    } catch (e) {
-      handleError(e);
-    }
-  };
-
-  addError = (id, error) => {
-    if (document.getElementById(id).children.length > 2) {
-      const field = document.getElementById(id);
-      field.removeChild(field.childNodes[2]);
-    }
-
-    document.getElementById(id).innerHTML +=
-      '<p style="color: red;font-weight: bold;">' + error + '</p>';
-  };
-
   validateFields = () => {
 
     let hasError = false;
     const { name, amount, age } = this.state.personalDetail;
+    let validationObj = {};
 
-    if(name.length === 0 || amount.length === 0 || age.length === 0) {
+    if(name !== null && name.length === 0) {
+      validationObj.name = true;
       hasError = true;
+    } else {
+      validationObj.name = false;
     }
+    
+    if(amount !== null && amount.length === 0) {
+      validationObj.amount = true;
+      hasError = true;
+    } else {
+      validationObj.amount = false;
+    }
+    
+    if(age !== null && age.length === 0) {
+      validationObj.age = true;
+      hasError = true;
+    } else {
+      validationObj.age = false;
+    }
+
+    this.setState({ formErrors : validationObj })
 
     return hasError;
   }
 
   clearForm = () => {
-    this.setState({  
-      personalDetail: {
-        name: null,
-        amount: null,
-        age: null,
-        isSmoker: false,
-        isDrinker: false,
-        isTerminallyIll: false,
-      },
-      formErrors: {
-        name: '',
-        amount: '',
-        age: '',
-      }
-    });
+    const clearPersonalDetailObj = {
+      name: '',
+      amount: '',
+      age: '',
+      isSmoker: false,
+      isDrinker: false,
+      isTerminallyIll: false,
+    };
+    const formErrorsObj = {
+      name: false,
+      amount: false,
+      age: false,
+    }
+    this.setState({ personalDetail: clearPersonalDetailObj });
+    this.setState({ formErrors: formErrorsObj });
   }
 
-  handleSelectUpdate = (e) => {
+  handleInputUpdate = (e) => {
     this.setState({ personalDetail : { ...this.state.personalDetail, [e.target.name]: e.target.value}});
   }
 
   handleCheckboxUpdate = (e) => {
     this.setState({ personalDetail : { ...this.state.personalDetail, [e.target.name]: e.target.checked}});
+  }
+
+  submitForm = (e) => {
+
+    e.preventDefault();
+
+    const hasErrors = this.validateFields();
+    if(hasErrors) {
+      return;
+    }
+
+    // TODO: success notice shows before submission completes
+    try {
+      console.log('submitting data...')
+      api.submitRequest(this.state).then(response => {
+        console.log('success');
+        console.log(response);
+        alert('Form successfully sent.')
+      }, error => {
+        console.log('error')
+        handleError(error);
+      });
+    } catch (e) {
+      // TODO: not returning correct error message, if any
+      alert(e);
+    }
+
   }
 
   render() {
@@ -109,34 +141,45 @@ class PensionCalculation extends React.Component {
         <div>
           <h2>Pension detail</h2>
         </div>
-        <Form>
-          <Form.Group id="name" controlId="nameInput">
-            <Form.Label>Name*</Form.Label>
-            <Form.Control
-              required
-              type="text"
-              placeholder="Enter name"
-              onChange={(e) => {
-                const name = e.target.value;
-                const { personalDetail } = this.state;
-                personalDetail.name = name;
-              }}
-            />
-          </Form.Group>
 
-          <Form.Group id="amount" controlId="amountInput">
-            <Form.Label>Insured Amount*</Form.Label>
-            <Form.Control
-              required
-              type="text"
-              placeholder="Enter amount"
-              onChange={(e) => {
-                const amount = e.target.value;
-                const { personalDetail } = this.state;
-                personalDetail.amount = amount;
-              }}
-            />
-          </Form.Group>
+        <form>
+          <div>
+            <label>
+              <div>Name *</div>
+              <input 
+                required
+                type="text"
+                name="name"
+                value={this.state.personalDetail.name}
+                placeholder="Enter name"
+                onChange={this.handleInputUpdate} 
+              />
+            </label>
+            {this.state.formErrors.name === true ? (
+              <div>
+                This field is required.
+              </div>
+            ):('')}
+          </div>
+
+          <div>
+            <label>
+              <div>Insured Amount *</div>
+              <input 
+                required
+                type="text"
+                name="amount"
+                value={this.state.personalDetail.amount}
+                placeholder="Enter amount"
+                onChange={this.handleInputUpdate} 
+                />
+            </label>
+            {this.state.formErrors.amount === true ? (
+              <div>
+                This field is required.
+              </div>
+            ):('')}
+          </div>
 
           <div>
             <div>
@@ -145,7 +188,7 @@ class PensionCalculation extends React.Component {
             <select
               required
               value={this.state.personalDetail.age ? this.state.personalDetail.age : ''}
-              onChange={this.handleSelectUpdate}
+              onChange={this.handleInputUpdate}
               name="age"
             >
               <option value="">Choose...</option>
@@ -153,6 +196,11 @@ class PensionCalculation extends React.Component {
               <option value="41-60">Between 41 - 60</option>
               <option value="61-">Above 60</option>
             </select>
+            {this.state.formErrors.age === true ? (
+              <div>
+                This field is required.
+              </div>
+            ):('')}
           </div>
 
           <div>
@@ -202,26 +250,10 @@ class PensionCalculation extends React.Component {
               id="submit"
               type="submit"
               variant="primary"
-              onClick={(e) => {
-                e.preventDefault();
-
-                const hasErrors = this.validateFields();
-                if(hasErrors) {
-                  return;
-                }
-
-                // TODO: success notice shows before submission completes
-                try {
-                  const res = this.submitRequest();
-                  alert(res);
-                } catch (e) {
-                  // TODO: not returning correct error message, if any
-                  alert(e);
-                }
-              }}
+              onClick={(e) => {this.submitForm(e)}}
             >
               Submit
-            </Button>{' '}
+            </Button>
             <Button
               variant="secondary"
               onClick={(e) => {
@@ -232,7 +264,7 @@ class PensionCalculation extends React.Component {
               Clear
             </Button>
           </div>
-        </Form>
+        </form>
 
         <br />
 
