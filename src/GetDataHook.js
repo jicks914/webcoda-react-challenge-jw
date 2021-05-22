@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as api from './api';
-import { formatDateTime, getSupportedCurrencies, handleError } from './utils';
-import { mockDoctors, mockExchangeRates, mockExchangeRateTime } from './__mock';
+import { formatDateTime, getSupportedCurrencies } from './utils';
 
 /**
  * @function useGetTravellingData
@@ -13,7 +12,7 @@ const useGetTravellingData = () => {
   const [data, setData] = useState({
     doctors: [],
     exchangeRates: [],
-    exchangeRateTime: formatDateTime(mockExchangeRateTime.epoch),
+    exchangeRateTime: "",
   });
 
   useEffect(() => {
