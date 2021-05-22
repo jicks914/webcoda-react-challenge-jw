@@ -125,14 +125,8 @@ class PensionCalculation extends React.Component {
   }
 
   render() {
-    // TODO: use useGetTravellingData() to retrieve travelling data.
-    // Below code is commented out, compilation error, use mock data for now.
-    // const travellingData = useGetTravellingData();
-    const travellingData = {
-      doctors: mockDoctors.results,
-      exchangeRates: getSupportedCurrencies(mockExchangeRates.rates),
-      exchangeRateTime: formatDateTime(mockExchangeRateTime.epoch),
-    };
+
+    const travellingData = this.props.travelData;
 
     // TODO: returned markup is too long, can we do something about them?
     // Hint: Repeated checkboxes and styling, split markups into components
